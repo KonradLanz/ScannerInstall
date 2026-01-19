@@ -300,7 +300,68 @@ if (-not (Test-Path "$TargetDir\.git")) {
 # ============================================================
 # 6. GIT COMMIT & PUSH
 # ============================================================
+function Test-RepositoryExists {
+    param(
+        [string]$Owner,
+        [string]$RepoName
+    )
+    
+    try {
+        $result = gh repo view "$Owner/$RepoName" --json name 2>$null
+        return $?
+    } catch {
+        return $false
+    }
+}
 
+function Create-Repository {
+    param(
+        [string]$RepoName,
+        [bool]$Private = $true
+    )
+    
+    try {
+        Write-Host "  ℹ $($Text.repo_creating)..." -ForegroundColor Yellow
+        
+        $visibility = if ($Private) { "--private" } else { "--public" }
+        
+        # Create repo on GitHub
+        gh repo create $RepoName $visibility --source=. --remote=origin --push 2>&1 | Out-Null
+        
+        if ($?) {
+            Write-Host "  ✓ $($Text.repo_created)" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "  ✗ $($Text.repo_error)" -ForegroundColor Red
+            return $false
+        }
+    } catch {
+        Write-Host "  ✗ $($Text.repo_error): $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+    # Check if repo exists
+    if (Test-RepositoryExists -Owner $gitHubUser -RepoName $repoName) {
+	
+					   
+        Write-Host "  ✓ $($Text.repo_exists)" -ForegroundColor Green
+        Write-Host ""
+
+
+        Write-Host "  ℹ $($Text.repo_not_exists)" -ForegroundColor Yellow
+        Write-Host ""
+    } else {
+        
+        if (Create-Repository -RepoName $repoName -Private $true) {
+            Write-Host ""
+            Write-Host "[STEP 7/7] Repository created!" -ForegroundColor Green
+        } else {
+            Write-Host ""
+            Write-Host "[STEP 7/7] Failed to create repository" -ForegroundColor Red
+            exit 1
+        }
+	}										   
 Write-Host ""
 Write-Host $Text.step_6 -ForegroundColor Yellow
 
