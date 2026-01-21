@@ -1,0 +1,249 @@
+{
+  "project": {
+    "name": "ScannerInstall",
+    "version": "1.0.0",
+    "description": "Universal Scanner Installation & USB-Binding for WSL2 + Linux",
+    "author": "GrEEV.com KG",
+    "license": "MIT + AGPLv3 Dual License",
+    "created": "2026-01-21"
+  },
+  
+  "scanner": {
+    "name": "Epson DS-80W",
+    "model": "DS-80W",
+    "vendor_id": "04b8",
+    "product_id": "0159",
+    "type": "document_scanner",
+    "driver": "epsonscan2",
+    "backend": "epson",
+    "sane_device": "epson:libusb:001:001",
+    
+    "config_files": [
+      "/etc/sane.d/epson.conf",
+      "/etc/udev/rules.d/50-udev-epson.rules"
+    ],
+    
+    "kernel_modules": [
+      "vhci_hcd",
+      "usbip_core",
+      "usbip_host"
+    ],
+    
+    "capabilities": {
+      "max_dpi": 600,
+      "color_modes": ["Black & White", "Gray", "Color RGB"],
+      "max_width_mm": 215,
+      "max_height_mm": 297,
+      "auto_document_feeder": true,
+      "duplex": false
+    }
+  },
+  
+  "wsl": {
+    "required_version": "2",
+    "supported_distributions": [
+      {
+        "name": "Ubuntu 22.04",
+        "id": "ubuntu-22.04",
+        "package_manager": "apt",
+        "init_system": "systemd",
+        "tested": true,
+        "notes": "Fully supported, recommended"
+      },
+      {
+        "name": "Ubuntu 20.04",
+        "id": "ubuntu-20.04",
+        "package_manager": "apt",
+        "init_system": "systemd",
+        "tested": true,
+        "notes": "Supported but older"
+      },
+      {
+        "name": "Alpine 3.19",
+        "id": "alpine-latest",
+        "package_manager": "apk",
+        "init_system": "openrc",
+        "tested": true,
+        "notes": "Lightweight alternative, manual service file needed"
+      },
+      {
+        "name": "Debian 12",
+        "id": "debian",
+        "package_manager": "apt",
+        "init_system": "systemd",
+        "tested": false,
+        "notes": "Should work, not fully tested"
+      }
+    ]
+  },
+  
+  "usbipd": {
+    "windows_package": "dorssel.usbipd-win",
+    "install_method": "winget",
+    "fallback_url": "https://github.com/dorssel/usbipd-win/releases/latest",
+    "service_name": "usbipd",
+    "bind_syntax": "usbipd bind --hardware-id=VENDOR_ID:PRODUCT_ID",
+    "attach_syntax": "usbipd attach --wsl --hardware-id=VENDOR_ID:PRODUCT_ID --auto-attach"
+  },
+  
+  "installation_steps": [
+    {
+      "step": 1,
+      "name": "WSL2 Detection & Distribution Setup",
+      "script": "scripts/1-check-wsl2.ps1",
+      "platform": "windows",
+      "required": true,
+      "description": "Prüfe WSL2 Installation, liste Distributionen auf, installiere ggf. neue"
+    },
+    {
+      "step": 2,
+      "name": "usbipd-win Installation",
+      "script": "scripts/2-install-usbipd.ps1",
+      "platform": "windows",
+      "required": true,
+      "description": "Installiere usbipd-win für USB-Device-Binding zu WSL"
+    },
+    {
+      "step": 3,
+      "name": "WSL Distribution vorbereiten",
+      "script": "scripts/3-prepare-wsl-distro.ps1",
+      "platform": "windows",
+      "required": true,
+      "description": "Führe SANE-Setup Script in WSL aus, installiere Dependencies"
+    },
+    {
+      "step": 4,
+      "name": "SANE Installation (Linux-Seite)",
+      "script": "linux/sane-setup.sh",
+      "platform": "linux",
+      "required": true,
+      "description": "Installiere SANE, Epson Driver, Kernel Modules, udev Rules"
+    },
+    {
+      "step": 5,
+      "name": "USB-Device Binding",
+      "script": "scripts/4-attach-usb-device.ps1",
+      "platform": "windows",
+      "required": true,
+      "description": "Binde Scanner-USB-Device an WSL mittels usbipd"
+    },
+    {
+      "step": 6,
+      "name": "Scanner Test & Validierung",
+      "script": "scripts/5-test-scanner.ps1",
+      "platform": "windows/linux",
+      "required": false,
+      "description": "Teste SANE, Kernel Modules, udev Rules, Scanner-Erkennung"
+    }
+  ],
+  
+  "scanner_variants": [
+    {
+      "name": "Epson DS-80W",
+      "vendor_id": "04b8",
+      "product_id": "0159",
+      "driver": "epsonscan2",
+      "notes": "Document Scanner, Automatic Document Feeder",
+      "tested": true
+    },
+    {
+      "name": "Epson DS-530",
+      "vendor_id": "04b8",
+      "product_id": "012e",
+      "driver": "epsonscan2",
+      "notes": "Document Scanner, Automatic Document Feeder",
+      "tested": false
+    },
+    {
+      "name": "Epson GT-S50",
+      "vendor_id": "04b8",
+      "product_id": "010f",
+      "driver": "sane-epson",
+      "notes": "Flatbed Scanner",
+      "tested": false
+    },
+    {
+      "name": "Fujitsu iX500",
+      "vendor_id": "04c5",
+      "product_id": "1041",
+      "driver": "fujitsu",
+      "notes": "High-speed Document Scanner",
+      "tested": false
+    }
+  ],
+  
+  "troubleshooting": {
+    "scanner_not_detected": {
+      "description": "SANE findet Scanner nicht",
+      "steps": [
+        "sane-find-scanner -v",
+        "scanimage -L",
+        "Kernel Modules prüfen: lsmod | grep vhci",
+        "udev Rules prüfen: cat /etc/udev/rules.d/50-*.rules",
+        "USB Device prüfen: lsusb | grep 04b8"
+      ]
+    },
+    "usb_binding_fails": {
+      "description": "usbipd bind schlägt fehl",
+      "steps": [
+        "usbipd list (Zeige alle USB Devices)",
+        "usbipd bind --hardware-id=04b8:0159 (Manual bind)",
+        "Administrator-Rechte prüfen",
+        "usbipd Service prüfen: Get-Service usbipd"
+      ]
+    },
+    "kernel_module_not_loading": {
+      "description": "vhci-hcd Modul lädt nicht beim Boot",
+      "steps": [
+        "Prüfe /etc/modules-load.d/vhci-hcd.conf",
+        "Prüfe systemd-modules-load.service: systemctl status systemd-modules-load",
+        "Manual: sudo modprobe vhci-hcd",
+        "Bei Alpine: Prüfe /etc/modules"
+      ]
+    }
+  },
+  
+  "logging": {
+    "log_directory": "logs/",
+    "windows_logs": [
+      "logs/wsl2-check-*.log",
+      "logs/usbipd-install-*.log",
+      "logs/device-binding-*.log"
+    ],
+    "linux_logs": [
+      "/tmp/scanner-install/sane-setup-*.log"
+    ]
+  },
+  
+  "git": {
+    "repository": "https://github.com/KonradLanz/ScannerInstall",
+    "base_template": "https://github.com/KonradLanz/ExecutionPolicy-Foundation",
+    "license_header": "# (C) 2026 GrEEV.com KG. All rights reserved.\n# Dual Licensed: MIT + AGPLv3"
+  },
+  
+  "testing_matrix": {
+    "windows": {
+      "versions": ["Windows 10 22H2", "Windows 11 24H2"],
+      "powershell": ["5.1", "7.5+"],
+      "wsl": ["2.0.0+"]
+    },
+    "linux": {
+      "ubuntu": {
+        "20.04": { "tested": true, "status": "stable" },
+        "22.04": { "tested": true, "status": "stable" },
+        "24.04": { "tested": false, "status": "planned" }
+      },
+      "alpine": {
+        "3.18": { "tested": false, "status": "planned" },
+        "3.19": { "tested": true, "status": "stable" }
+      }
+    }
+  },
+  
+  "performance_notes": {
+    "scanning_speed_dpi": 600,
+    "adf_speed_ppm": 25,
+    "usb_overhead": "~5-10% slower than native USB due to WSL virtualization",
+    "kernel_module_memory": "vhci-hcd: ~100KB resident"
+  }
+}
