@@ -1,0 +1,21 @@
+# Ensure correct line endings across platforms
+* text=auto
+
+# PowerShell scripts - always CRLF for Windows
+*.ps1 text eol=crlf
+*.ps2 text eol=crlf
+*.psd1 text eol=crlf
+*.psm1 text eol=crlf
+
+# Batch files - always CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Documentation
+*.md text eol=lf
+README* text eol=lf
+LICENSE* text eol=lf
+
+# Git ignore same
+.gitattributes text eol=lf
+.gitignore text eol=lf

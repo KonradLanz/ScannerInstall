@@ -1,0 +1,54 @@
+# GNU AFFERO GENERAL PUBLIC LICENSE v3
+
+## Preamble
+
+ExecutionPolicy Foundation is available under the GNU Affero General Public License v3 (AGPLv3) for open source and community projects.
+
+## Key Terms
+
+### You MAY:
+- Use the software for any purpose
+- Copy and distribute the software
+- Modify the software
+- Use for private purposes
+- Share modifications with community
+
+### You MUST:
+- Keep source code visible
+- Share improvements back to community
+- Include license text with distributions
+- Disclose source if using as SaaS/network service
+
+### You CANNOT:
+- Remove copyright notices
+- Hold authors liable
+- Use proprietary/closed-source without permission
+- Sublicense under different terms
+
+## Full License
+
+For the complete, official AGPLv3 license text, see:
+https://www.gnu.org/licenses/agpl-3.0.html
+
+## How AGPLv3 Affects SaaS
+
+**Important:** If you offer ExecutionPolicy Foundation as a SaaS or over a network, you MUST make the source code available to all users.
+
+Example: If you run a cloud service using this software, users must be able to request the source code.
+
+## When to Use AGPLv3
+
+✓ Open source projects  
+✓ Internal company tools (non-SaaS)  
+✓ Educational projects  
+✓ Community contributions  
+
+❌ Commercial software (use MIT instead)  
+❌ SaaS without code disclosure (use MIT or Professional Support)  
+❌ Closed-source projects (use MIT instead)  
+
+---
+
+Copyright © 2026 GrEEV.com KG. All rights reserved.
+
+This software is licensed under AGPLv3. For commercial licensing or different terms, contact: office@greev.com

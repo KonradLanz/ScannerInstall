@@ -1,0 +1,18 @@
+# Archived versions
+.attic/
+
+# Test/Debug files
+git_diff_output.txt
+*.patch
+*.tmp
+*.log
+*.bak
+*.swp
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
